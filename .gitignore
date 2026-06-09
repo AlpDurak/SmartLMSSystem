@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+venv/
+ENV/
+
+# Skill files
+safe-api-performance-auditor/
+safe-api-performance-auditor-repo/
+safe-api-performance-auditor-repo.skill
+performance_skill/
+
+# Temporary files
+temp_downloads/
+
+# IDE files
+.vscode/
+.idea/
