@@ -1,13 +1,17 @@
 import json
 import time
-import uuid
-from datetime import datetime, timezone
 
 import pytest
 
 import smart_lms.config as cfg_mod
 import smart_lms.tools.sessions as sess_mod
-from smart_lms.tools.sessions import _list_sessions_raw, _session_path
+from smart_lms.tools.sessions import (
+    _create_session,
+    _list_sessions_raw,
+    _load_session,
+    _save_turn,
+    _session_path,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -19,46 +23,36 @@ def tmp_sessions(tmp_path, monkeypatch):
     cfg_mod.ensure_dirs()
 
 
-def _make_session(title: str, course: str = "") -> str:
-    session_id = str(uuid.uuid4())
-    data = {
-        "id": session_id,
-        "title": title,
-        "course": course,
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "turns": [],
-    }
-    sess_mod._session_path(session_id).write_text(json.dumps(data))
-    return session_id
-
-
-def test_create_session_file_has_uuid_format():
-    sid = _make_session("Test", "X")
+def test_create_session_returns_uuid():
+    sid = _create_session("Test", "X")
     assert len(sid) == 36
-    assert sess_mod._session_path(sid).exists()
+    assert _session_path(sid).exists()
+    data = json.loads(_session_path(sid).read_text())
+    assert data["title"] == "Test"
+    assert data["course"] == "X"
+    assert data["turns"] == []
 
 
 def test_save_and_load_turn():
-    sid = _make_session("T")
-    path = sess_mod._session_path(sid)
-    data = json.loads(path.read_text())
-    data["turns"].append({"role": "user", "text": "Hello", "sources": ["course:1"]})
-    path.write_text(json.dumps(data))
-    loaded = json.loads(path.read_text())
-    assert loaded["turns"][0]["text"] == "Hello"
+    sid = _create_session("T")
+    _save_turn(sid, "user", "Hello", ["course:1"])
+    session = _load_session(sid)
+    assert session["turns"][0]["text"] == "Hello"
+    assert session["turns"][0]["role"] == "user"
+    assert session["turns"][0]["sources"] == ["course:1"]
 
 
 def test_list_sessions_returns_newest_first():
-    sid1 = _make_session("A")
+    sid1 = _create_session("A")
     time.sleep(0.02)
-    sid2 = _make_session("B")
+    sid2 = _create_session("B")
     sessions = _list_sessions_raw()
     assert len(sessions) == 2
-    # newest first — sid2 was created last
     assert sessions[0]["id"] == sid2
 
 
 def test_load_missing_session_returns_empty():
-    path = sess_mod._session_path("nope")
-    result = json.loads(path.read_text()) if path.exists() else {}
+    import uuid
+    missing_id = str(uuid.uuid4())
+    result = _load_session(missing_id)
     assert result == {}
