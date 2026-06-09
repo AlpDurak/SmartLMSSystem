@@ -3,7 +3,7 @@
 # Usage: curl -fsSL https://raw.githubusercontent.com/berkanpak/SmartLMSSystem/main/install.sh | bash
 set -e
 
-REPO_URL="https://github.com/berkanpak/SmartLMSSystem.git"
+REPO_URL="https://github.com/AlpDurak/SmartLMSSystem.git"
 INSTALL_DIR="${SMART_LMS_DIR:-$HOME/.smart-lms-app}"
 
 echo ""
