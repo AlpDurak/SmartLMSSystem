@@ -40,3 +40,7 @@ dist/
 # OS files
 .DS_Store
 Thumbs.db
+
+# docs/ - tracked except superpowers design docs
+# docs/
+!docs/superpowers/
