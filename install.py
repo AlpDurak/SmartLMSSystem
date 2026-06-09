@@ -112,6 +112,7 @@ def install_claude(path: Path, repo: Path, uninstall: bool) -> str:
     """Claude Code user-scoped MCP lives in ~/.claude.json."""
     cfg = read_json(path)
     servers = cfg.setdefault("mcpServers", {})
+    remove_claude_project_mcp(cfg, "smart-lms")
     if uninstall:
         if "smart-lms" in servers:
             del servers["smart-lms"]
@@ -127,6 +128,22 @@ def install_claude(path: Path, repo: Path, uninstall: bool) -> str:
     write_json(path, cfg)
     remove_json_mcp_server(HOME / ".claude" / "settings.json", "smart-lms")
     return "registered"
+
+
+def remove_claude_project_mcp(cfg: dict, name: str):
+    projects = cfg.get("projects")
+    if not isinstance(projects, dict):
+        return
+
+    for project in projects.values():
+        if not isinstance(project, dict):
+            continue
+        servers = project.get("mcpServers")
+        if not isinstance(servers, dict) or name not in servers:
+            continue
+        del servers[name]
+        if not servers:
+            del project["mcpServers"]
 
 
 def toml_string(value: str) -> str:

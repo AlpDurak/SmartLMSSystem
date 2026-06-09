@@ -32,6 +32,40 @@ def test_claude_code_registers_user_scoped_mcp_in_claude_json(tmp_path, monkeypa
     assert entry["env"]["PYTHONPATH"] == str(repo)
 
 
+def test_claude_registration_removes_stale_project_scoped_smart_lms(tmp_path, monkeypatch):
+    installer = reload_installer(monkeypatch, tmp_path)
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    cfg_path = tmp_path / ".claude.json"
+    cfg_path.write_text(
+        json.dumps(
+            {
+                "projects": {
+                    "C:/Users/USER": {
+                        "mcpServers": {
+                            "smart-lms": {
+                                "type": "stdio",
+                                "command": "python",
+                                "args": ["-m", "smart_lms.server"],
+                                "env": {},
+                            },
+                            "keep-me": {"command": "ok"},
+                        }
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert installer.install_claude(cfg_path, repo, uninstall=False) == "registered"
+
+    data = json.loads(cfg_path.read_text(encoding="utf-8"))
+    assert "smart-lms" not in data["projects"]["C:/Users/USER"]["mcpServers"]
+    assert data["projects"]["C:/Users/USER"]["mcpServers"]["keep-me"]["command"] == "ok"
+    assert data["mcpServers"]["smart-lms"]["cwd"] == str(repo)
+
+
 def test_codex_registers_mcp_in_config_toml(tmp_path, monkeypatch):
     installer = reload_installer(monkeypatch, tmp_path)
     repo = tmp_path / "repo"
