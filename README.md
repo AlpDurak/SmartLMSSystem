@@ -9,31 +9,34 @@ Type `/smart-lms` and get a browser chat UI that renders your course materials a
 ## One-line install
 
 **Windows (PowerShell):**
+
 ```powershell
-irm https://raw.githubusercontent.com/AlpDurak/SmartLMSSystem/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/berkanpak/SmartLMSSystem/main/install.ps1 | iex
 ```
 
 From `cmd.exe` or a locked-down PowerShell profile:
+
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/AlpDurak/SmartLMSSystem/main/install.ps1 | iex"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/berkanpak/SmartLMSSystem/main/install.ps1 | iex"
 ```
 
 **macOS / Linux / Git Bash:**
+
 ```bash
-curl -fsSL https://raw.githubusercontent.com/AlpDurak/SmartLMSSystem/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/berkanpak/SmartLMSSystem/main/install.sh | bash
 ```
 
 Installs the MCP server **and** the `/smart-lms` skill in user/global locations for common AI coding tools:
 
-| Tool | Config written |
-|------|---------------|
-| Claude Code | `~/.claude.json` + `~/.claude/skills/smart-lms/SKILL.md` |
-| Codex CLI (OpenAI) | `~/.codex/config.toml` + `~/.agents/skills/smart-lms/SKILL.md` |
+| Tool                         | Config written                                                    |
+| ---------------------------- | ----------------------------------------------------------------- |
+| Claude Code                  | `~/.claude.json` + `~/.claude/skills/smart-lms/SKILL.md`          |
+| Codex CLI (OpenAI)           | `~/.codex/config.toml` + `~/.agents/skills/smart-lms/SKILL.md`    |
 | Gemini CLI / Antigravity CLI | `~/.gemini/settings.json` + `~/.agents/skills/smart-lms/SKILL.md` |
-| Cursor | `~/.cursor/mcp.json` |
-| Windsurf (Codeium) | `~/.codeium/windsurf/mcp_config.json` |
-| Zed | `~/.config/zed/settings.json` |
-| Continue | `~/.continue/config.json` |
+| Cursor                       | `~/.cursor/mcp.json`                                              |
+| Windsurf (Codeium)           | `~/.codeium/windsurf/mcp_config.json`                             |
+| Zed                          | `~/.config/zed/settings.json`                                     |
+| Continue                     | `~/.continue/config.json`                                         |
 
 Or if you already cloned the repo:
 
@@ -62,6 +65,7 @@ python install.py --uninstall
 After installing, reload your AI coding tool and:
 
 1. Set your Moodle credentials once:
+
    ```
    call setup_lms_credentials("student@isik.edu.tr", "yourpassword")
    ```
@@ -90,13 +94,13 @@ After installing, reload your AI coding tool and:
 
 The MCP server exposes 17 tools across five modules:
 
-| Module | Tools |
-|--------|-------|
-| LMS | `setup_lms_credentials` `list_courses` `list_materials` `get_material_text` |
-| Sessions | `create_session` `save_turn` `list_sessions` `load_session` |
-| UI bridge | `start_ui` `wait_for_prompt` `render` |
-| Google Drive | `connect_google_drive` `search_drive_files` `get_drive_file_text` |
-| NotebookLM | `connect_notebooklm` `list_notebooks` `get_notebook_content` (stub — API in preview) |
+| Module       | Tools                                                                                |
+| ------------ | ------------------------------------------------------------------------------------ |
+| LMS          | `setup_lms_credentials` `list_courses` `list_materials` `get_material_text`          |
+| Sessions     | `create_session` `save_turn` `list_sessions` `load_session`                          |
+| UI bridge    | `start_ui` `wait_for_prompt` `render`                                                |
+| Google Drive | `connect_google_drive` `search_drive_files` `get_drive_file_text`                    |
+| NotebookLM   | `connect_notebooklm` `list_notebooks` `get_notebook_content` (stub — API in preview) |
 
 The host agent is the reasoning brain — it calls tools to gather source text, generates card-block JSON, and pushes it to the browser via SSE. No AI runs inside the MCP server itself.
 
@@ -146,7 +150,7 @@ Every conversation is persisted at `~/.smart-lms/sessions/<uuid>.json`. The side
 ## Development
 
 ```bash
-git clone https://github.com/AlpDurak/SmartLMSSystem.git
+git clone https://github.com/berkanpak/SmartLMSSystem.git
 cd SmartLMSSystem
 pip install -r requirements.txt
 python -m pytest tests/ -v

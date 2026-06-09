@@ -1,10 +1,10 @@
 # Smart LMS Windows one-line installer
-# Usage: irm https://raw.githubusercontent.com/AlpDurak/SmartLMSSystem/main/install.ps1 | iex
+# Usage: irm https://raw.githubusercontent.com/berkanpak/SmartLMSSystem/main/install.ps1 | iex
 $ErrorActionPreference = "Stop"
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-$RepoUrl = "https://github.com/AlpDurak/SmartLMSSystem.git"
-$ZipUrl = "https://github.com/AlpDurak/SmartLMSSystem/archive/refs/heads/main.zip"
+$RepoUrl = "https://github.com/berkanpak/SmartLMSSystem.git"
+$ZipUrl = "https://github.com/berkanpak/SmartLMSSystem/archive/refs/heads/main.zip"
 $InstallDir = if ($env:SMART_LMS_DIR) { $env:SMART_LMS_DIR } else { Join-Path $env:USERPROFILE ".smart-lms-app" }
 
 function Test-Command {

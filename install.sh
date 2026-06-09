@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Smart LMS — one-line installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/AlpDurak/SmartLMSSystem/main/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/berkanpak/SmartLMSSystem/main/install.sh | bash
 set -e
 
-REPO_URL="https://github.com/AlpDurak/SmartLMSSystem.git"
+REPO_URL="https://github.com/berkanpak/SmartLMSSystem.git"
 # shellcheck disable=SC2034  # kept for override: SMART_LMS_DIR=... curl ... | bash
 INSTALL_DIR="${SMART_LMS_DIR:-$HOME/.smart-lms-app}"
 
