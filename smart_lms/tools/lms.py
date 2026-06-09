@@ -2,47 +2,19 @@ import hashlib
 import os
 import sys
 import tempfile
-import importlib.util
 from pathlib import Path
 
 import requests
 from fastmcp import FastMCP
 
-# Get absolute path to project root
-project_root = Path(__file__).parent.parent.parent.resolve()
+_project_root = Path(__file__).parent.parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
 
-# Add project root to path if not already there
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+from lms_scraper import LMSScraper  # noqa: E402
 
-# Import lms_scraper from project root
-try:
-    from lms_scraper import LMSScraper
-except ImportError:
-    # Try loading directly
-    lms_scraper_path = project_root / "lms_scraper.py"
-    spec = importlib.util.spec_from_file_location("lms_scraper", lms_scraper_path)
-    lms_scraper_module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(lms_scraper_module)
-    LMSScraper = lms_scraper_module.LMSScraper
-
-# Import from our local mcp.config and mcp.tools.documents
-# Load these directly to avoid import conflicts
-config_path = project_root / "mcp" / "config.py"
-documents_path = project_root / "mcp" / "tools" / "documents.py"
-
-spec_config = importlib.util.spec_from_file_location("local_config", config_path)
-config_module = importlib.util.module_from_spec(spec_config)
-spec_config.loader.exec_module(config_module)
-
-spec_docs = importlib.util.spec_from_file_location("local_documents", documents_path)
-documents_module = importlib.util.module_from_spec(spec_docs)
-spec_docs.loader.exec_module(documents_module)
-
-get_config = config_module.get_config
-get_lms_credentials = config_module.get_lms_credentials
-store_lms_credentials = config_module.store_lms_credentials
-extract_document_text = documents_module.extract_document_text
+from smart_lms.config import get_config, get_lms_credentials, store_lms_credentials
+from smart_lms.tools.documents import extract_document_text
 
 
 def _material_id(file_url: str) -> str:

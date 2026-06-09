@@ -1,7 +1,7 @@
 import json
 import pytest
 from unittest.mock import patch
-import mcp.config as cfg_mod
+import smart_lms.config as cfg_mod
 
 
 @pytest.fixture(autouse=True)

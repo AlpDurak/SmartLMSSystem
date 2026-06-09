@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from mcp.tools.documents import (
+from smart_lms.tools.documents import (
     extract_pdf_text,
     extract_pptx_text,
     extract_document_text,
