@@ -187,6 +187,123 @@ def install_deps(repo: Path):
     print(green("  [ok] dependencies installed"))
 
 
+SKILL_MD = """\
+---
+name: smart-lms
+description: Launch a browser-based LMS study assistant. The agent teaches,
+  quizzes, and examines using the student's Moodle course materials, Google
+  Drive, and NotebookLM as sources. Output is rendered as flashcards, quiz
+  cards, summaries, and mock exams.
+trigger: /smart-lms
+---
+
+# Smart LMS Skill
+
+You are a student study assistant. When this skill is invoked, follow the
+boot sequence and then run the study loop.
+
+## MCP Server
+
+This skill requires the smart-lms MCP server. It must be registered in
+your tool's MCP settings pointing to:
+  python -m smart_lms.server
+from the SmartLMSSystem repo directory.
+
+## Boot Sequence
+
+1. Call `start_ui()` — launches the browser UI and returns
+   `{session_id, url, port}`. Save `session_id` for the rest of the session.
+2. Call `list_courses()` to confirm LMS credentials are working.
+   If the result is empty, tell the user: "Your LMS credentials are not set.
+   Call setup_lms_credentials(username, password) to configure them."
+3. Call `create_session(title="New session", course="")` to start
+   persisting this conversation.
+
+## Study Loop (repeat until user closes the browser or says goodbye)
+
+### Step 1 — Wait for user input
+Call `wait_for_prompt(session_id)`.
+Returns: `{text, course_ids, doc_ids, drive_files}`
+
+### Step 2 — Gather sources
+For each selected course_id, call `get_material_text(course_id, doc_ids)`
+to get `[{title, text}]`. Concatenate all text as `<SOURCE_TEXT>`.
+
+### Step 3 — Interpret intent and generate card blocks
+
+Use `<SOURCE_TEXT>` as the knowledge base. Do NOT make up facts.
+
+- "teach me X" / "explain X": 4-8 flashcards + 1 summary block
+- "quiz me" / "test me" / "examine me": 1 quiz block + 1 exam block
+- "summarize X": 1 summary block only
+- Other: reply in prose
+
+### Step 4 — Render and persist
+
+Call `render(session_id, blocks)` to push card blocks to the browser.
+Call `save_turn(session_id, "user", <user text>, <source list>, null)`
+Call `save_turn(session_id, "assistant", <prose reply>, [], blocks)`
+
+Go back to Step 1.
+"""
+
+
+def install_skill(repo: Path, uninstall: bool):
+    """Copy SKILL.md to Claude Code, Codex, and Gemini skill directories."""
+    skill_file = repo / "smart_lms" / "skill" / "SKILL.md"
+    # Use bundled skill content (no file dependency)
+    content = SKILL_MD
+
+    targets = [
+        ("Claude Code skill", HOME / ".claude" / "skills" / "smart-lms" / "SKILL.md"),
+        ("Codex CLI skill",   HOME / ".codex"  / "skills" / "smart-lms" / "SKILL.md"),
+    ]
+
+    for label, dest in targets:
+        if uninstall:
+            if dest.exists():
+                dest.unlink()
+                print(f"  {green('ok')} {label} removed")
+            else:
+                print(f"  {dim('--')} {label} (not installed)")
+        else:
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_text(content, encoding="utf-8")
+            print(f"  {green('ok')} {label}")
+            print(dim(f"    {dest}"))
+
+    # Gemini CLI — append/remove skill block in ~/.gemini/GEMINI.md
+    gemini_md = HOME / ".gemini" / "GEMINI.md"
+    marker_start = "# [smart-lms skill]"
+    marker_end   = "# [/smart-lms skill]"
+
+    if (HOME / ".gemini").exists():
+        existing = gemini_md.read_text(encoding="utf-8") if gemini_md.exists() else ""
+        if uninstall:
+            if marker_start in existing:
+                start = existing.index(marker_start)
+                end   = existing.index(marker_end) + len(marker_end)
+                gemini_md.write_text(
+                    (existing[:start] + existing[end:]).strip() + "\n",
+                    encoding="utf-8",
+                )
+                print(f"  {green('ok')} Gemini CLI skill removed")
+            else:
+                print(f"  {dim('--')} Gemini CLI skill (not installed)")
+        else:
+            block = f"\n{marker_start}\n{content}\n{marker_end}\n"
+            if marker_start in existing:
+                start = existing.index(marker_start)
+                end   = existing.index(marker_end) + len(marker_end)
+                new = existing[:start] + block.strip() + existing[end:]
+            else:
+                new = existing + block
+            gemini_md.parent.mkdir(parents=True, exist_ok=True)
+            gemini_md.write_text(new, encoding="utf-8")
+            print(f"  {green('ok')} Gemini CLI skill")
+            print(dim(f"    {gemini_md}"))
+
+
 def main():
     parser = argparse.ArgumentParser(description="Smart LMS MCP installer")
     parser.add_argument("--repo", type=Path,
@@ -220,9 +337,13 @@ def main():
         result = handler(cfg_path, repo, args.uninstall)
         verb = {"registered": "ok", "removed": "ok", "not registered": "--"}[result]
         color = green if result in ("registered", "removed") else dim
-        print(f"  {color(verb)} {name}")
+        print(f"  {color(verb)} {name} MCP")
         print(dim(f"    {cfg_path}"))
         registered.append(name)
+
+    print()
+    print(bold("  Skills:"))
+    install_skill(repo, args.uninstall)
 
     print()
     if registered:

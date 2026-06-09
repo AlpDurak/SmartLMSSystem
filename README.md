@@ -8,11 +8,17 @@ Type `/smart-lms` and get a browser chat UI that renders your course materials a
 
 ## One-line install
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/berkanpak/SmartLMSSystem/main/install.sh | bash
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/AlpDurak/SmartLMSSystem/main/install.ps1 | iex
 ```
 
-Works on macOS, Linux, and Windows (Git Bash / WSL). Detects and registers the MCP server in every AI coding tool found on your machine:
+**macOS / Linux / Git Bash:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/AlpDurak/SmartLMSSystem/main/install.sh | bash
+```
+
+Detects and registers the MCP server **and** the `/smart-lms` skill in every AI coding tool found on your machine:
 
 | Tool | Config written |
 |------|---------------|

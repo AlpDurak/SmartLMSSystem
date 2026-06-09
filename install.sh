@@ -4,6 +4,7 @@
 set -e
 
 REPO_URL="https://github.com/AlpDurak/SmartLMSSystem.git"
+# shellcheck disable=SC2034  # kept for override: SMART_LMS_DIR=... curl ... | bash
 INSTALL_DIR="${SMART_LMS_DIR:-$HOME/.smart-lms-app}"
 
 echo ""
